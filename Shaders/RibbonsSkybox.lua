@@ -33,16 +33,23 @@ uniform vec2 u_resolution;
 uniform float u_time;
 uniform float brightness;
 
+uniform vec3 u_camForward;
+uniform vec3 u_camRight;
+uniform vec3 u_camUp;
+uniform float u_tanHalfFov;
+
 in vec2 uv;
 out vec4 fragColor;
 
 void main() {
+    vec2 p_screen = (gl_FragCoord.xy / u_resolution.xy) * 2.0 - 1.0;
+    p_screen.x *= u_resolution.x / u_resolution.y;
+    vec3 dir = normalize(u_camForward + p_screen.x * u_tanHalfFov * u_camRight + p_screen.y * u_tanHalfFov * u_camUp);
+
     float z = 0.0;
     float d = 0.0;
     float i = 0.0;
     vec4 O = vec4(0.0);
-    
-    vec3 dir = normalize(vec3(u_resolution.xy, u_resolution.y) - 2.0 * vec3(gl_FragCoord.xy, 0.0));
     
     for (int k = 0; k < 99; k++) {
         vec3 p = z * dir;
@@ -66,6 +73,7 @@ void main() {
 
 local isInitialized = false
 local shader, fullTexQuad, vsx, vsy
+local skyDebugWarned = false
 
 function widget:Initialize()
    vsx, vsy = Spring.GetViewGeometry()
@@ -76,7 +84,11 @@ function widget:Initialize()
        fragment = skyFs, 
        uniformFloat = { 
            u_time = 0,
-           brightness = C_THEME.brightness
+           brightness = C_THEME.brightness,
+           u_camForward = {0, 0, -1},
+           u_camRight = {1, 0, 0},
+           u_camUp = {0, 1, 0},
+           u_tanHalfFov = 0.4142
        }
    }, "AbstractSkyboxWorld")
 
@@ -104,6 +116,24 @@ function widget:DrawWorld()
    shader:SetUniform("brightness", C_THEME.brightness)
    shader:SetUniform("u_time", os.clock())
    
+   local camVectors = Spring.GetCameraVectors()
+   if camVectors and camVectors.forward and camVectors.right and camVectors.up then
+      local fwd = camVectors.forward
+      local right = camVectors.right
+      local up = camVectors.up
+      shader:SetUniform("u_camForward", fwd[1], fwd[2], fwd[3])
+      shader:SetUniform("u_camRight", right[1], right[2], right[3])
+      shader:SetUniform("u_camUp", up[1], up[2], up[3])
+   elseif not skyDebugWarned then
+      skyDebugWarned = true
+      Spring.Echo("[RibbonsSkybox] Spring.GetCameraVectors() returned unexpected data.")
+   end
+
+   local fovY = Spring.GetCameraFOV()
+   if fovY then
+      shader:SetUniform("u_tanHalfFov", math.tan(math.rad(fovY * 0.5)))
+   end
+
    if fullTexQuad and fullTexQuad.DrawArrays then
       fullTexQuad:DrawArrays(GL.TRIANGLES, 3)
    else
@@ -111,7 +141,7 @@ function widget:DrawWorld()
            gl.Vertex(-1, -1); gl.Vertex( 3, -1); gl.Vertex(-1,  3)
        end)
    end
-   
+
    shader:Deactivate()
    
    gl.Blending(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA)
@@ -120,9 +150,13 @@ function widget:DrawWorld()
 end
 
 function widget:Shutdown()
+   if isInitialized and shader then
+      shader:Finalize()
+   end
+   if fullTexQuad and fullTexQuad.Delete then
+      fullTexQuad:Delete()
+   end
    isInitialized = false
-   if shader then shader:Finalize() end
-   if fullTexQuad and fullTexQuad.Delete then fullTexQuad:Delete() end
 end
 
 function widget:ViewResize()
