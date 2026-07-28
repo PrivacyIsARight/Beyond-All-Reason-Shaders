@@ -20,9 +20,9 @@ local skyVs = [[
 #version 330
 const vec2 vertices[3] = vec2[3](vec2(-1.0, -1.0), vec2(3.0, -1.0), vec2(-1.0, 3.0));
 out vec2 uv;
-void main() { 
-    gl_Position = vec4(vertices[gl_VertexID], 0.99999, 1.0); 
-    uv = vertices[gl_VertexID] * 0.5 + 0.5; 
+void main() {
+    gl_Position = vec4(vertices[gl_VertexID], 0.99999, 1.0);
+    uv = vertices[gl_VertexID] * 0.5 + 0.5;
 }
 ]]
 
@@ -50,23 +50,23 @@ void main() {
     float d = 0.0;
     float i = 0.0;
     vec4 O = vec4(0.0);
-    
+
     for (int k = 0; k < 99; k++) {
         vec3 p = z * dir;
         d = 2.0;
-        
+
         for (int j = 0; j < 6; j++) {
             d /= 0.9;
             p = p.zxy + sin(p * d + vec3(d + u_time * 0.5)) / d;
         }
-        
+
         d = 0.001 + abs(2.0 - mix(z, p.z, 0.4)) / 9.0;
         z += d;
-        
+
         O += (sin(z + 0.06 * i + vec4(0.0, 1.0, 2.0, 0.0)) + 1.0) / d;
         i += 1.0;
     }
-    
+
     fragColor = vec4(tanh(O.rgb / 30000.0) * brightness, 1.0);
 }
 ]]
@@ -78,11 +78,11 @@ local skyDebugWarned = false
 function widget:Initialize()
    vsx, vsy = Spring.GetViewGeometry()
    if not vsx or vsx <= 0 then return end
-   
-   shader = gl.LuaShader({ 
-       vertex = skyVs, 
-       fragment = skyFs, 
-       uniformFloat = { 
+
+   shader = gl.LuaShader({
+       vertex = skyVs,
+       fragment = skyFs,
+       uniformFloat = {
            u_time = 0,
            brightness = C_THEME.brightness,
            u_camForward = {0, 0, -1},
@@ -103,19 +103,19 @@ end
 function widget:DrawWorld()
    local currVsx, currVsy, currVpx, currVpy = Spring.GetViewGeometry()
    if currVpx ~= 0 or currVpy ~= 0 then return end
-   
+
    if not isInitialized or not shader then return end
-   
+
    gl.DepthTest(GL.LEQUAL)
    gl.DepthMask(false)
    gl.Blending(false)
-   
+
    shader:Activate()
-   
+
    shader:SetUniform("u_resolution", currVsx, currVsy)
    shader:SetUniform("brightness", C_THEME.brightness)
    shader:SetUniform("u_time", os.clock())
-   
+
    local camVectors = Spring.GetCameraVectors()
    if camVectors and camVectors.forward and camVectors.right and camVectors.up then
       local fwd = camVectors.forward
@@ -143,7 +143,7 @@ function widget:DrawWorld()
    end
 
    shader:Deactivate()
-   
+
    gl.Blending(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA)
    gl.DepthTest(true)
    gl.DepthMask(true)
