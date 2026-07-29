@@ -198,7 +198,7 @@ function widget:Initialize()
    end
 end
 
-function widget:DrawWorld()
+function widget:DrawWorldPreUnit()
    local cx, cy, cpx, cpy = spGetViewGeometry()
    if cpx ~= 0 or cpy ~= 0 then return end
    if not isInitialized or not shader then return end
@@ -209,7 +209,7 @@ function widget:DrawWorld()
 
    if not ok and not skyDebugWarned then
       skyDebugWarned = true
-      spEcho("[BlueIridescentTunnelSkybox] DrawWorld error: " .. tostring(err))
+      spEcho("[BlueIridescentTunnelSkybox] DrawWorldPreUnit error: " .. tostring(err))
    end
 
    glBlending(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)

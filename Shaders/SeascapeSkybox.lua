@@ -239,7 +239,7 @@ function widget:Initialize()
    end
 end
 
-function widget:DrawWorld()
+function widget:DrawWorldPreUnit()
    local currVsx, currVsy, currVpx, currVpy = Spring.GetViewGeometry()
    if currVpx ~= 0 or currVpy ~= 0 then return end
    if not isInitialized or not shader then return end
@@ -290,7 +290,7 @@ function widget:DrawWorld()
 
    if not ok and not skyDebugWarned then
       skyDebugWarned = true
-      Spring.Echo("[SeascapeSkybox] DrawWorld error: " .. tostring(err))
+      Spring.Echo("[SeascapeSkybox] DrawWorldPreUnit error: " .. tostring(err))
    end
 
    gl.Blending(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA)

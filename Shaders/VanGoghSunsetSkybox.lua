@@ -411,7 +411,7 @@ function widget:Initialize()
    end
 end
 
-function widget:DrawWorld()
+function widget:DrawWorldPreUnit()
    local currVsx, currVsy, currVpx, currVpy = Spring.GetViewGeometry()
    if currVpx ~= 0 or currVpy ~= 0 then return end
 
