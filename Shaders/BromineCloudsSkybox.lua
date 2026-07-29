@@ -1,3 +1,5 @@
+local version = "1.0 Bromine Clouds Skybox"
+
 function widget:GetInfo()
    return {
       name      = "Bromine Clouds Skybox",

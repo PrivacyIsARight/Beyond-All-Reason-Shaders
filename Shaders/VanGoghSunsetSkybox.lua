@@ -1,4 +1,4 @@
-local version = "1.0 Van Gogh Sunset"
+local version = "1.0 Van Gogh Sunset Skybox"
 
 function widget:GetInfo()
    return {

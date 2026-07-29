@@ -1,3 +1,5 @@
+local version = "1.0 Seascape Skybox"
+
 function widget:GetInfo()
    return {
       name      = "Seascape Skybox",

@@ -1,3 +1,5 @@
+local version = "1.0 Blue Iridescent Tunnel Skybox"
+
 function widget:GetInfo()
    return {
       name      = "Blue Iridescent Tunnel Skybox",
