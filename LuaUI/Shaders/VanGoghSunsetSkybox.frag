@@ -1,33 +1,11 @@
-local version = "1.0 Van Gogh Sunset Skybox"
+#version 430
 
-function widget:GetInfo()
-   return {
-      name      = "Van Gogh Sunset Skybox",
-      desc      = "Shader by Noztol",
-      author    = "vexalous",
-      date      = "2026",
-      license   = "CC BY-NC-SA 4.0",
-      layer     = -10001,
-      enabled   = true
-   }
-end
-
-local C_THEME = {
-   brightness    = 1.0,
-}
-
-local skyVs = [[
-#version 330
-const vec2 vertices[3] = vec2[3](vec2(-1.0, -1.0), vec2(3.0, -1.0), vec2(-1.0, 3.0));
-out vec2 uv;
-void main() {
-    gl_Position = vec4(vertices[gl_VertexID], 0.99999, 1.0);
-    uv = vertices[gl_VertexID] * 0.5 + 0.5;
-}
-]]
-
-local skyFs = [[
-#version 330
+// Shader: Van Gogh Sunset
+// Shader Author: Noztol
+// File Author: vexalous
+// Source: https://fragcoord.xyz/s/v8yeu5k7
+// License: CC BY-NC-SA 4.0
+// Uniforms: u_resolution, u_time, brightness
 
 uniform vec2 u_resolution;
 uniform float u_time;
@@ -385,69 +363,3 @@ void main() {
 
     fragColor = vec4(col * brightness, 1.0);
 }
-]]
-
-local isInitialized = false
-local shader, fullTexQuad, vsx, vsy
-
-function widget:Initialize()
-   vsx, vsy = Spring.GetViewGeometry()
-   if not vsx or vsx <= 0 then return end
-
-   shader = gl.LuaShader({
-       vertex = skyVs,
-       fragment = skyFs,
-       uniformFloat = {
-           u_time = 0,
-           brightness = C_THEME.brightness
-       }
-   }, "VanGoghSunsetSkyboxWorld")
-
-   if shader:Initialize() then
-       if gl.GetVAO then fullTexQuad = gl.GetVAO() end
-       isInitialized = true
-   else
-       widgetHandler:RemoveWidget(self)
-   end
-end
-
-function widget:DrawWorldPreUnit()
-   local currVsx, currVsy, currVpx, currVpy = Spring.GetViewGeometry()
-   if currVpx ~= 0 or currVpy ~= 0 then return end
-
-   if not isInitialized or not shader then return end
-
-   gl.DepthTest(GL.LEQUAL)
-   gl.DepthMask(false)
-   gl.Blending(false)
-
-   shader:Activate()
-
-   shader:SetUniform("u_resolution", currVsx, currVsy)
-   shader:SetUniform("brightness", C_THEME.brightness)
-   shader:SetUniform("u_time", os.clock())
-
-   if fullTexQuad and fullTexQuad.DrawArrays then
-      fullTexQuad:DrawArrays(GL.TRIANGLES, 3)
-   else
-       gl.BeginEnd(GL.TRIANGLES, function()
-           gl.Vertex(-1, -1); gl.Vertex( 3, -1); gl.Vertex(-1,  3)
-       end)
-   end
-
-   shader:Deactivate()
-
-   gl.Blending(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA)
-   gl.DepthTest(true)
-   gl.DepthMask(true)
-end
-
-function widget:Shutdown()
-   isInitialized = false
-   if shader then shader:Finalize() end
-   if fullTexQuad and fullTexQuad.Delete then fullTexQuad:Delete() end
-end
-
-function widget:ViewResize()
-   vsx, vsy = Spring.GetViewGeometry()
-end

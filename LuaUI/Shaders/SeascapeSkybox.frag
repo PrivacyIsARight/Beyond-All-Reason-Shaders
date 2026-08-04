@@ -1,31 +1,12 @@
-local version = "1.0 Seascape Skybox"
-
-function widget:GetInfo()
-   return {
-      name      = "Seascape Skybox",
-      desc      = "Shader by Alexander Alekseev aka TDM",
-      author    = "vexalous",
-      date      = "2026",
-      license   = "CC BY-NC-SA 3.0",
-      layer     = -10001,
-      enabled   = true
-   }
-end
-
-local C_THEME = { brightness = 1.0 }
-
-local skyVs = [[
 #version 430
-const vec2 vertices[3] = vec2[3](vec2(-1.0, -1.0), vec2(3.0, -1.0), vec2(-1.0, 3.0));
-out vec2 uv;
-void main() {
-    gl_Position = vec4(vertices[gl_VertexID], 0.99999, 1.0);
-    uv = vertices[gl_VertexID] * 0.5 + 0.5;
-}
-]]
 
-local skyFs = [[
-#version 430
+// Shader: Seascape
+// Shader Author: Alexander Alekseev (TDM)
+// File Author: vexalous
+// Source: https://www.shadertoy.com/view/Ms2SD1
+// License: CC BY-NC-SA 3.0
+// Uniforms: u_resolution, u_time, brightness, u_camForward, u_camRight, u_camUp, u_tanHalfFov, u_camPos
+
 uniform vec2 u_resolution;
 uniform float u_time;
 uniform float brightness;
@@ -204,110 +185,3 @@ void main() {
     vec3 color = getPixel(gl_FragCoord.xy, time);
     fragColor = vec4(pow(color, vec3(0.65)) * brightness, 1.0);
 }
-]]
-
-local isInitialized = false
-local shader, fullTexQuad, vsx, vsy
-local startClock = 0
-local skyDebugWarned = false
-
-function widget:Initialize()
-   vsx, vsy = Spring.GetViewGeometry()
-   if not vsx or vsx <= 0 then return end
-
-   startClock = os.clock()
-
-   shader = gl.LuaShader({
-       vertex = skyVs,
-       fragment = skyFs,
-       uniformFloat = {
-           u_time = 0,
-           brightness = C_THEME.brightness,
-           u_camForward = {0, 0, -1},
-           u_camRight = {1, 0, 0},
-           u_camUp = {0, 1, 0},
-           u_camPos = {0, 0, 0},
-           u_tanHalfFov = 0.4142
-       }
-   }, "SeascapeSkybox")
-
-   if shader:Initialize() then
-       if gl.GetVAO then fullTexQuad = gl.GetVAO() end
-       isInitialized = true
-   else
-       widgetHandler:RemoveWidget(self)
-   end
-end
-
-function widget:DrawWorldPreUnit()
-   local currVsx, currVsy, currVpx, currVpy = Spring.GetViewGeometry()
-   if currVpx ~= 0 or currVpy ~= 0 then return end
-   if not isInitialized or not shader then return end
-
-   local ok, err = pcall(function()
-      gl.DepthTest(GL.LEQUAL)
-      gl.DepthMask(false)
-      gl.Blending(false)
-
-      shader:Activate()
-      shader:SetUniform("u_resolution", currVsx, currVsy)
-      shader:SetUniform("brightness", C_THEME.brightness)
-      shader:SetUniform("u_time", os.clock() - startClock)
-
-      local camVectors = Spring.GetCameraVectors()
-      if camVectors and camVectors.forward and camVectors.right and camVectors.up then
-         local fwd = camVectors.forward
-         local right = camVectors.right
-         local up = camVectors.up
-         shader:SetUniform("u_camForward", fwd[1], fwd[2], fwd[3])
-         shader:SetUniform("u_camRight", right[1], right[2], right[3])
-         shader:SetUniform("u_camUp", up[1], up[2], up[3])
-      elseif not skyDebugWarned then
-         skyDebugWarned = true
-         Spring.Echo("[SeascapeSkybox] Spring.GetCameraVectors() returned unexpected data.")
-      end
-
-      local cx, cy, cz = Spring.GetCameraPosition()
-      if cx then
-         shader:SetUniform("u_camPos", cx, cy, cz)
-      end
-
-      local fovY = Spring.GetCameraFOV()
-      if fovY then
-         shader:SetUniform("u_tanHalfFov", math.tan(math.rad(fovY * 0.5)))
-      end
-
-      if fullTexQuad and fullTexQuad.DrawArrays then
-         fullTexQuad:DrawArrays(GL.TRIANGLES, 3)
-      else
-          gl.BeginEnd(GL.TRIANGLES, function()
-              gl.Vertex(-1, -1); gl.Vertex( 3, -1); gl.Vertex(-1,  3)
-          end)
-      end
-
-      shader:Deactivate()
-   end)
-
-   if not ok and not skyDebugWarned then
-      skyDebugWarned = true
-      Spring.Echo("[SeascapeSkybox] DrawWorldPreUnit error: " .. tostring(err))
-   end
-
-   gl.Blending(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA)
-   gl.DepthTest(true)
-   gl.DepthMask(true)
-end
-
-function widget:Shutdown()
-   if isInitialized and shader then
-      shader:Finalize()
-   end
-   if fullTexQuad and fullTexQuad.Delete then
-      fullTexQuad:Delete()
-   end
-   isInitialized = false
-end
-
-function widget:ViewResize()
-   vsx, vsy = Spring.GetViewGeometry()
-end
