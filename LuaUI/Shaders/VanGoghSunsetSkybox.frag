@@ -218,12 +218,12 @@ float sdTree(vec2 p, vec2 pos, float scale) {
 float getLand(vec2 uv, float aspect) {
     float d = 1.0;
 
-    float w1 = 0.05 * exp(-12.0 * pow(uv.x - aspect*0.1, 2.0));
+    float wq = uv.x - aspect*0.1; float w1 = 0.05 * exp(-12.0 * wq * wq);
     float c1 = 0.36 - 0.01 * uv.x;
     float land1 = abs(uv.y - c1) - w1 + smoothstep(0.008, 0.0, w1);
     d = min(d, land1);
 
-    float w2 = 0.03 * exp(-30.0 * pow(uv.x - aspect*0.52, 2.0));
+    float wq2 = uv.x - aspect*0.52; float w2 = 0.03 * exp(-30.0 * wq2 * wq2);
     float c2 = 0.48;
     float land2 = abs(uv.y - c2) - w2 + smoothstep(0.008, 0.0, w2);
     d = min(d, land2);
@@ -305,11 +305,11 @@ vec4 getIslandGrass(vec2 uv, vec2 r, float time, float aspect) {
             vec2 id = floor(u) + vec2(x,y);
             vec2 root_uv = id / vec2(xd, xd/2.0);
 
-            float w1 = 0.05 * exp(-12.0 * pow(root_uv.x - aspect*0.1, 2.0));
+            float wq = root_uv.x - aspect*0.1; float w1 = 0.05 * exp(-12.0 * wq * wq);
             float c1 = 0.36 - 0.01 * root_uv.x;
             float land1 = abs(root_uv.y - c1) - w1 + smoothstep(0.008, 0.0, w1);
 
-            float w2 = 0.03 * exp(-30.0 * pow(root_uv.x - aspect*0.52, 2.0));
+            float wq2 = root_uv.x - aspect*0.52; float w2 = 0.03 * exp(-30.0 * wq2 * wq2);
             float c2 = 0.48;
             float land2 = abs(root_uv.y - c2) - w2 + smoothstep(0.008, 0.0, w2);
 

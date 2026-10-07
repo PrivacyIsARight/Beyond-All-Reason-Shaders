@@ -61,7 +61,7 @@ float specular(vec3 n, vec3 l, vec3 e, float s) {
 
 vec3 getSkyColor(vec3 e) {
     e.y = (max(e.y,0.0)*0.8+0.2)*0.8;
-    return vec3(pow(1.0-e.y,2.0), 1.0-e.y, 0.6+(1.0-e.y)*0.4) * 1.1;
+    float ie = 1.0-e.y; return vec3(ie*ie, ie, 0.6+ie*0.4) * 1.1;
 }
 
 float sea_octave(vec2 uv2, float choppy) {
