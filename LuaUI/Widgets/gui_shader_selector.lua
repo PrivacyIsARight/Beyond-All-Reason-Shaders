@@ -16,4 +16,1394 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ]]
 
-function widget:GetInfo()return{name="Beyond All Reason Shaders",desc="Shader Selector",author="vexalous",date="2026",license="GPL v3",layer=-10001,enabled=true}end;local a,b,c,d,e,f,g=math,gl,GL,Spring,true,false,"none"local h,i,j,k,l,m,n,o,p,q,r,s,t,u=a.min,a.max,a.abs,a.cos,a.sin,a.pi,b.Color,b.Texture,b.BeginEnd,b.Vertex,b.LineWidth,b.DeleteTexture,b.Text,b.Blending;local v,w,x,y,z=c.TRIANGLES,c.LINEAR,c.CLAMP_TO_EDGE,c.SRC_ALPHA,c.ONE_MINUS_SRC_ALPHA;local A={EPR=3000,bX=50,bY=-10,bZ=50,sR=j(0.997114514*.5),BTP=36,BBP=58,BP=20,BCW=208,BIH=117,BTH=34,BCH=151,BUW=456,BUH=416,BPW=560,BPH=460,BPTP=28,BPBP=24,BPTG=24,BPITG=26,BPSP=24,BPIW=512,BPIH=288,BIR=8,BCR=14,BCF=14,BIF=11,BCCR=6,BPTF=20,BPPF=14,BPPS=22,BPEF=16,BRG=25,MUS=0.55,MXUS=2.25,MPS=0.6,MXPS=2.0,CMS=1.3}local B={aSI=g,cP=1,uOX=0,uOY=0,pOX=0,pOY=0,uSg=1,pRP=nil,hU={},th={},tG={},cS={},sF={},rU={},sL={{id=g,n="No Skybox",sa="N/A",fa="N/A",lic="N/A",u="N/A"}}}local C={}for D=0,16 do C[D]={j(k(D*m/32))^.5,j(l(D*m/32))^.5}end;local function E(F)if not F then return end;if not F:find("^%s*#version")then local G=F:match("(#version%s+%d+)")if G then F=G.."\n"..F:gsub("#version%s+%d+%s*\n?","")end end;return F end;local function H()local I=VFS.DirList("LuaUI/Shaders/")if type(I)~="table"then return end;for J,K in ipairs(I)do if type(K)=="string"and K:match("%.frag$")then local F=VFS.LoadFile(K)if F then F=F.."\n"local L=F:match("//%s*Shader:%s*(.-)\r?\n")if L then local M=K:match("([^/%\\]+)%.frag$")table.insert(B.sL,{id=M,n=L,sa=F:match("//%s*Shader Author:%s*(.-)\r?\n")or"Unknown",fa=F:match("//%s*File Author:%s*(.-)\r?\n")or"Unknown",u=F:match("//%s*Source:%s*(.-)\r?\n")or"N/A",lic=F:match("//%s*License:%s*(.-)\r?\n")or"N/A"})B.sF[M]=E(F)B.rU[M]=","..(F:match("//%s*Uniforms:%s*(.-)\r?\n")or""):gsub("[%s,;]+",",")..","end end end end;table.sort(B.sL,function(N,O)if N.id==g and O.id==g then return f elseif N.id==g then return e elseif O.id==g then return f end;return N.n<O.n end)end;local function P(D)if D==g then return end;local K=B.sF[D]if not B.sVs or not K then return end;local F=b.LuaShader({vertex=B.sVs,fragment=K},"Skybox_"..D)if F and F:Initialize()then B.hU[D]={}return F else if F then F:Finalize()end end end;local function Q(D)return D~=g and B.cS[D]or nil end;local function R(G,S)A.uSX,A.uSY=i(A.MUS,h(A.MXUS,G)),i(A.MUS,h(A.MXUS,S))A.uS=h(A.uSX,A.uSY)local T=h(A.uSY,A.CMS)A.PX,A.PY,A.TP,A.BtP=A.BP*A.uSX,A.BP*A.uSY,A.BTP*T,A.BBP*T;A.CW,A.IH,A.TH,A.UW=A.BCW*A.uSX,A.BIH*A.uSY,A.BTH*A.uSY,A.BUW*A.uSX;A.CH=A.IH+A.TH;A.UH=A.TP+A.BtP+A.CH*2+A.PY;A.IR,A.CR=A.BIR*A.uS,A.BCR*A.uS end;local function U()local G,S=d.GetViewGeometry()if G and G>0 and S and S>0 then R(G*.5/A.BUW,S*.5/A.BUH)else R(1,1)end;B.uOX,B.uOY=0,0 end;local function V(G,S)A.pSX,A.pSY=i(A.MPS,h(A.MXPS,G)),i(A.MPS,h(A.MXPS,S))A.pS=h(A.pSX,A.pSY)local T=h(A.pSY,A.CMS)A.PTP,A.PBP,A.PTG,A.PITG,A.PPS,A.PSP=A.BPTP*T,A.BPBP*T,A.BPTG*A.pSY,A.BPITG*A.pSY,A.BPPS*A.pSY,A.BPSP*A.pSX;A.PIW,A.PIH=A.BPIW*A.pSX,A.BPIH*A.pSY;A.PW=A.PSP*2+A.PIW;A.PH=A.PTP+A.PTG+A.PIH+A.PITG+A.PPS*3+A.BPPF*A.pS+A.PBP end;local function W(G,S,X)return{x=A.bX+(G-(Game.mapSizeX or 16000)*.5)/A.EPR,y=A.bY+(S-200)/A.EPR,z=A.bZ+(X-(Game.mapSizeZ or 16000)*.5)/A.EPR}end;local function Y(Z)if B.pRP and B.pRP.y*Z.y<0 then local _=B.pRP.y/(B.pRP.y-Z.y)local G,X=B.pRP.x+(Z.x-B.pRP.x)*_,B.pRP.z+(Z.z-B.pRP.z)*_;if G*G+X*X<A.sR*A.sR then B.uSg=-B.uSg end end;B.pRP=Z end;local function a0(a1,a2,a3,a4,a5,a6,a7,a8,a9)a5,a6=h(a5,(a3-a1)*.5,(a4-a2)*.5),h(a6,(a3-a1)*.5,(a4-a2)*.5)local aa,ab=a3-a1,a4-a2;p(c.POLYGON,function()local function ac(ad,T)if a8 and a9 then local _=ab>0 and(T-a2)/ab or 0;n(a9[1]+(a8[1]-a9[1])*_,a9[2]+(a8[2]-a9[2])*_,a9[3]+(a8[3]-a9[3])*_,a9[4]+(a8[4]-a9[4])*_)end;if a7 then b.TexCoord(aa>0 and(ad-a1)/aa or 0,ab>0 and(T-a2)/ab or 0)end;q(ad,T)end;for D=0,16 do ac(a3-a5+C[D][1]*a5,a4-a5+C[D][2]*a5)end;for D=0,16 do ac(a1+a5-C[D][2]*a5,a4-a5+C[D][1]*a5)end;for D=0,16 do ac(a1+a6-C[D][1]*a6,a2+a6-C[D][2]*a6)end;for D=0,16 do ac(a3-a6+C[D][2]*a6,a2+a6-C[D][1]*a6)end end)end;local function ae(a1,a2,a3,a4,Z,a8,a9)Z=h(Z,(a3-a1)*.5,(a4-a2)*.5)local ab=a4-a2;p(c.LINE_LOOP,function()local function ac(ad,T)if a8 and a9 then local _=ab>0 and(T-a2)/ab or 0;n(a9[1]+(a8[1]-a9[1])*_,a9[2]+(a8[2]-a9[2])*_,a9[3]+(a8[3]-a9[3])*_,a9[4]+(a8[4]-a9[4])*_)end;q(ad,T)end;for D=0,16 do ac(a3-Z+C[D][1]*Z,a4-Z+C[D][2]*Z)end;for D=0,16 do ac(a1+Z-C[D][2]*Z,a4-Z+C[D][1]*Z)end;for D=0,16 do ac(a1+Z-C[D][1]*Z,a2+Z-C[D][2]*Z)end;for D=0,16 do ac(a3-Z+C[D][2]*Z,a2+Z-C[D][1]*Z)end end)end;local function af(G,S,Z)p(c.LINE_LOOP,function()for D=0,32 do local N=D*m/16;q(G+k(N)*Z,S+l(N)*Z)end end)end;local function ag(_,G,S,F,ah,ai)n(0,0,0,(ai[4]or 1)*.6)t(_,G,S-1,F,ah)n(unpack(ai))t(_,G,S,F,ah)end;local function aj(G,S)if not B.scT or B.lVx~=G or B.lVy~=S then if B.scT then s(B.scT)end;B.scT=b.CreateTexture(G,S,{min_filter=w,mag_filter=w,wrap_s=x,wrap_t=x})B.lVx,B.lVy=G,S end end;local function ak(a1,a2,a3,a4,Z,al,a8)u(y,z)local am,an,ao=unpack(a8 or{.05,.05,.06})if B.gSh and B.scT then local ap,aq=d.GetViewGeometry()B.gSh:Activate()B.gSh:SetUniform("u_bounds",a1,a2,a3-a1,a4-a2)B.gSh:SetUniform("u_resolution",ap,aq)B.gSh:SetUniform("u_blurRadius",3)B.gSh:SetUniform("u_colorTint",am,an,ao,al)o(B.scT)B.gSh:SetUniform("u_screenTex",0)a0(a1,a2,a3,a4,Z,Z,e)o(f)B.gSh:Deactivate()else a0(a1,a2,a3,a4,Z,Z,f,{am+.05,an+.05,ao+.05,al},{am,an,ao,al})end;r(1)ae(a1,a2,a3,a4,Z,{1,1,1,.15},{1,1,1,.02})end;local function ar(G,S,Z,N)n(1,1,1,N)r(1.5)p(c.LINES,function()q(G-Z,S-Z)q(G+Z,S+Z)q(G-Z,S+Z)q(G+Z,S-Z)end)r(1)end;local function as(G,S,ab,F)F=F or 1;n(1,1,1,ab and.8 or.3)p(c.LINES,function()q(G-4*F,S+14*F)q(G-14*F,S+4*F)q(G-4*F,S+10*F)q(G-10*F,S+4*F)q(G-4*F,S+6*F)q(G-6*F,S+4*F)end)end;local function at()local G,S=d.GetViewGeometry()return(G-A.UW)*.5+B.uOX,(S-A.UH)*.5+B.uOY,G,S end;local function au(av,aw)return av+(A.UW-A.PW)*.5+B.pOX,aw+(A.UH-A.PH)*.5+B.pOY end;local function ax(av,aw,ay)local az,aA=a.floor((ay-1)/2),(ay-1)%2;local aB=av+(A.UW-(2*A.CW+A.PX))*.5;local a1=aB+aA*(A.CW+A.PX)local a4=aw+A.UH-A.TP-az*(A.CH+A.PY)return a1,a4-A.CH,a1+A.CW,a4 end;local function aC(G,S,ad,T,aa,ab)return G>=ad and G<=ad+aa and S>=T and S<=T+ab end;local function aD(F,D,aE,aF,aG,aH)local K=d.GetCameraFOV()local aI=K and a.tan(a.rad(K*.5))or.4142;local aJ=aG and d.GetCameraVectors()or{forward={0,0,-1},right={1,0,0},up={0,1,0}}local aK=aG and{d.GetCameraPosition()}or{0,0,0}local aL=aG and W(aK[1],aK[2],aK[3])or{x=A.bX,y=A.bY,z=A.bZ}if aG then Y(aL)end;local aM={u_resolution={aE,aF},u_time={aG and os.clock()-B.sClk or 30},brightness={aH or 1},u_camForward=aJ.forward,u_camRight=aJ.right,u_camUp=aJ.up,u_camRightScaled={aJ.right[1]*aI,aJ.right[2]*aI,aJ.right[3]*aI},u_camUpScaled={aJ.up[1]*aI,aJ.up[2]*aI,aJ.up[3]*aI},u_tanHalfFov={aI},u_camPos=aK,u_camPos_Rs={aL.x,aL.y,aL.z},u_universeSign={aG and B.uSg or 1}}for aN,N in pairs(aM)do if B.hU[D][aN]==nil then B.hU[D][aN]=B.rU[D]:find(","..aN..",",1,e)~=nil end;if B.hU[D][aN]then F:SetUniform(aN,unpack(N))end end end;local function aO(D,_,aG,aE,aF)local F=Q(D)if not F then return end;b.RenderToTexture(_,function()b.Clear(c.COLOR_BUFFER_BIT,c.DEPTH_BUFFER_BIT)F:Activate()aD(F,D,aE,aF,aG,1)if B.fTQ and B.fTQ.DrawArrays then B.fTQ:DrawArrays(v,3)else p(v,function()q(-1,-1)q(3,-1)q(-1,3)end)end;F:Deactivate()end)end;local function aP(D)local _=b.CreateTexture(256,144,{fbo=e,min_filter=w,mag_filter=w,wrap_s=x,wrap_t=x})if _ then aO(D,_,f,256,144)end;return _ end;function widget:KeyPress(aN,aQ,Z)if aN==112 and aQ.ctrl and aQ.shift then B.uA,B.rCHI,B.isC=not B.uA,nil,f;if B.uA then U()else B.iPA=f end;return e end;if not B.uA then return f end;if aN==27 then if B.iPA then B.iPA,B.iTI=f,nil else B.uA,B.rCHI=f,nil end;return e end;return f end;function widget:IsAbove(G,S)B.hCI,B.hII,B.hCB,B.hMC,B.hUR,B.hPR,B.hP,B.hN=nil,nil,f,f,f,f,f,f;if not B.uA then return f end;local av,aw=at()if B.iPA then local aR,aS=au(av,aw)if aC(G,S,aR,aS,A.PW,A.PH)then if G>=aR+A.PW-A.BRG*A.pS and S<=aS+A.BRG*A.pS then B.hPR=e;return e end;local aT=A.BCR*A.pS;if G>=aR+A.PW-20-aT and G<=aR+A.PW-20+aT and S>=aS+A.PH-20-aT and S<=aS+A.PH-20+aT then B.hCB=e end;return e end;return e end;if aC(G,S,av,aw,A.UW,A.UH)then if G>=av+A.UW-A.BRG*A.uS and S<=aw+A.BRG*A.uS then B.hUR=e;return e end;local aU,aV=av+A.UW-20,aw+A.UH-20;if G>=aU-A.CR and G<=aU+A.CR and S>=aV-A.CR and S<=aV+A.CR then B.hMC=e;return e end;local m=a.ceil(#B.sL/4)if m>1 then local aW,aX=av+A.UW*.5,aw+A.BtP*.5;if G>=aW-75*A.uS and G<=aW-45*A.uS and S>=aX-15*A.uS and S<=aX+15*A.uS then B.hP=e;return e end;if G>=aW+45*A.uS and G<=aW+75*A.uS and S>=aX-15*A.uS and S<=aX+15*A.uS then B.hN=e;return e end end;local aY=(B.cP-1)*4+1;for D=aY,h(#B.sL,aY+3)do local aZ,a_=B.sL[D],D-aY+1;local a1,a2,a3,a4=ax(av,aw,a_)if aC(G,S,a1,a2,A.CW,A.CH)then B.hCI=aZ.id;local b0,b1=a3-16*A.uSX,a2+A.TH*.5;if G>=b0-A.IR and G<=b0+A.IR and S>=b1-A.IR and S<=b1+A.IR then B.hII=aZ.id end;break end end;return e end;return f end;function widget:MousePress(G,S,O)if not B.uA then return f end;local av,aw=at()if B.iPA then local aR,aS=au(av,aw)if O==1 then if aC(G,S,aR,aS,A.PW,A.PH)then if B.hPR then B.iRP,B.dSX,B.dSY,B.iPSX,B.iPSY,B.iW,B.iH,B.iOX,B.iOY=e,G,S,A.pSX,A.pSY,A.PW,A.PH,B.pOX,B.pOY;return e end;local b2=A.BCR*A.pS;if G>=aR+A.PW-20-b2 and G<=aR+A.PW-20+b2 and S>=aS+A.PH-20-b2 and S<=aS+A.PH-20+b2 then B.iPA,B.iTI=f,nil;return e end;B.iDP,B.dSX,B.dSY,B.iOX,B.iOY=e,G,S,B.pOX,B.pOY;return e end;return e end;B.isC=e;return e end;if aC(G,S,av,aw,A.UW,A.UH)then B.isC=e;if O==1 and B.hUR then B.iRUI,B.dSX,B.dSY,B.iUSX,B.iUSY,B.iW,B.iH,B.iOX,B.iOY=e,G,S,A.uSX,A.uSY,A.UW,A.UH,B.uOX,B.uOY;return e end;if O==1 and B.hMC then B.uA,B.rCHI=f,nil;return e end;if O==1 and B.hP then if B.cP>1 then B.cP=B.cP-1 end;return e end;if O==1 and B.hN then if B.cP<a.ceil(#B.sL/4)then B.cP=B.cP+1 end;return e end;if O==1 and B.hII then B.iTI,B.iPA,B.pOX,B.pOY=B.hII,e,0,0;V(1,1)return e end;if B.hCI then if O==1 then B.aSI=B.hCI elseif O==3 then B.rCHI=B.hCI end end;if O==1 then B.iDUI,B.dSX,B.dSY,B.iOX,B.iOY=e,G,S,B.uOX,B.uOY end;return e end;return f end;function widget:MouseRelease(G,S,O)if B.iRP then B.iRP=f end;if B.iRUI then B.iRUI=f end;if B.iDP then B.iDP=f end;if B.iDUI then B.iDUI=f end;if B.isC then B.isC=f;if O==3 and B.rCHI then B.rCHI=nil end;return e end;return f end;function widget:MouseMove(G,S,b3,b4,O)if B.iRP then V(B.iPSX+(G-B.dSX)/A.BPW,B.iPSY+(B.dSY-S)/A.BPH)B.pOX,B.pOY=B.iOX+(A.PW-B.iW)*.5,B.iOY-(A.PH-B.iH)*.5;return e end;if B.iRUI then R(B.iUSX+(G-B.dSX)/A.BUW,B.iUSY+(B.dSY-S)/A.BUH)B.uOX,B.uOY=B.iOX+(A.UW-B.iW)*.5,B.iOY-(A.UH-B.iH)*.5;return e end;if B.iDP then B.pOX,B.pOY=B.iOX+G-B.dSX,B.iOY+S-B.dSY;return e end;if B.iDUI then B.uOX,B.uOY=B.iOX+G-B.dSX,B.iOY+S-B.dSY;return e end;return B.isC end;function widget:MouseWheel()if not B.uA then return f end;local av,aw=at()local G,S=d.GetMouseState()return aC(G,S,av,aw,A.UW,A.UH)end;function widget:DrawScreen()if not B.uA or B.rCHI then return end;local av,aw,ap,aq=at()aj(ap,aq)if B.scT then pcall(b.CopyToTexture,B.scT,0,0,0,0,ap,aq)end;if#B.tG>0 then local M=table.remove(B.tG,1)B.th[M]=aP(M)end;if B.hCI and B.hCI~=g and B.th[B.hCI]then aO(B.hCI,B.th[B.hCI],e,256,144)end;ak(av,aw,av+A.UW,aw+A.UH,16*A.uS,.75,{.02,.02,.02})ar(av+A.UW-20,aw+A.UH-20,A.BCCR*A.uS,B.hMC and 1 or.3)as(av+A.UW,aw,B.hUR or B.iRUI,A.uS)local aY=(B.cP-1)*4+1;for D=aY,h(#B.sL,aY+3)do local aZ,a_=B.sL[D],D-aY+1;local a1,a2,a3,a4=ax(av,aw,a_)local ab,F=B.hCI==aZ.id,B.aSI==aZ.id;local b5=a2+A.TH;a0(a1,a2,a3,b5,0,10*A.uS,f,{.12,.12,.12,.6},{.05,.05,.05,.6})if aZ.id==g then n(.01,.01,.01,.8)a0(a1,b5,a3,a4,10*A.uS,0)elseif B.th[aZ.id]then n(1,1,1,1)o(B.th[aZ.id])a0(a1,b5,a3,a4,10*A.uS,0,e)o(f)else n(.05,.05,.05,.8)a0(a1,b5,a3,a4,10*A.uS,0)end;if ab and not F then n(1,1,1,.05)a0(a1,a2,a3,a4,10*A.uS,10*A.uS)end;if F then r(1.5)ae(a1,a2,a3,a4,10*A.uS,{.5,.8,1,1},{.1,.4,.8,.8})r(1)else r(1)ae(a1,a2,a3,a4,10*A.uS,{1,1,1,.15},{1,1,1,.02})end;ag(aZ.n,a1+A.CW*.5,a2+A.TH*.5,A.BCF*A.uS,"cv",{1,1,1,F and 1 or.7})local b0,b1=a3-16*A.uSX,a2+A.TH*.5;local b6=B.hII==aZ.id;n(1,1,1,b6 and.4 or.1)af(b0,b1,A.IR)ag("i",b0,b1,A.BIF*A.uS,"cv",{1,1,1,b6 and 1 or.4})end;local m=a.ceil(#B.sL/4)if m>1 then local aS,aR=aw+A.BtP*.5,av+A.UW*.5;ag("Page "..B.cP.." / "..m,aR,aS,14*A.uS,"cv",{1,1,1,.8})ag("<",aR-60*A.uS,aS,16*A.uS,"cv",{1,1,1,B.hP and 1 or.5})ag(">",aR+60*A.uS,aS,16*A.uS,"cv",{1,1,1,B.hN and 1 or.5})end;if B.iPA then local aR,aS=au(av,aw)ak(aR,aS,aR+A.PW,aS+A.PH,16*A.pS,.75,{.01,.01,.01})ar(aR+A.PW-20,aS+A.PH-20,A.BCCR*A.pS,B.hCB and 1 or.3)as(aR+A.PW,aS,B.hPR or B.iRP,A.pS)if B.iTI then local aZ;for J,ah in ipairs(B.sL)do if ah.id==B.iTI then aZ=ah;break end end;if aZ then local b7=aS+A.PH-A.PTP;ag(aZ.n,aR+A.PW*.5,b7,A.BPTF*A.pS,"cv",{1,1,1,1})if aZ.id~=g then local ad,T=aR+(A.PW-A.PIW)*.5,b7-A.PTG-A.PIH;aO(B.iTI,B.iTex,e,512,288)n(1,1,1,1)o(B.iTex)a0(ad,T,ad+A.PIW,T+A.PIH,10*A.pS,10*A.pS,e)o(f)r(1)ae(ad,T,ad+A.PIW,T+A.PIH,10*A.pS,{1,1,1,.2},{1,1,1,.02})local b8,F=T-A.PITG,A.PPS;local function b9(aG,ba,S)ag(aG.." "..ba,aR+A.PW*.5,S,A.BPPF*A.pS,"cv",{.85,.85,.85,1})end;b9("Shader Author:",aZ.sa,b8)b9("File Author:",aZ.fa,b8-F)b9("License:",aZ.lic,b8-F*2)b9("Source:",aZ.u,b8-F*3)else ag("No additional information available.",aR+A.PW*.5,aS+A.PH*.5,A.BPEF*A.pS,"cv",{1,1,1,.6})end end end end end;function widget:GetConfigData()return{activeSkyboxId=B.aSI}end;function widget:SetConfigData(b3)B.aSI=b3 and b3.activeSkyboxId or g;R(1,1)V(1,1)end;function widget:Initialize()B.sClk,B.fTQ,B.iTex=os.clock(),b.GetVAO and b.GetVAO(),b.CreateTexture(512,288,{fbo=e,min_filter=w,mag_filter=w,wrap_s=x,wrap_t=x})local bb=VFS.LoadFile("LuaUI/Shaders/Skybox430.vert")if bb then B.sVs=E(bb)end;H()B.gSh=b.LuaShader({vertex="#version 150 compatibility\nout vec2 v_uv;void main(){v_uv=gl_MultiTexCoord0.xy;gl_Position=gl_ModelViewProjectionMatrix*gl_Vertex;}",fragment="#version 150 compatibility\nuniform sampler2D u_screenTex;uniform vec4 u_bounds,u_colorTint;uniform vec2 u_resolution;uniform float u_blurRadius;in vec2 v_uv;out vec4 fragColor;float rand(vec2 co){return fract(sin(dot(co.xy,vec2(12.9898,78.233)))*43758.5453);}void main(){vec2 sP=vec2(u_bounds.x+v_uv.x*u_bounds.z,u_bounds.y+v_uv.y*u_bounds.w);vec2 sU=sP/u_resolution;vec4 C=vec4(0.0);float t=0.0;vec2 tx=1.0/u_resolution;for(float x=-3.0;x<=3.0;x+=1.0){for(float y=-3.0;y<=3.0;y+=1.0){float w=1.0-(length(vec2(x,y))/4.24);if(w>0.0){C+=texture(u_screenTex,sU+vec2(x,y)*tx*u_blurRadius)*w;t+=w;}}}C/=t;float n=(rand(sU)-0.5)*0.05;float s=smoothstep(0.0,2.0,v_uv.x+v_uv.y);vec3 fT=mix(u_colorTint.rgb,vec3(1.0),s*0.05);fragColor=vec4(mix(C.rgb,fT,u_colorTint.a)+vec3(n),1.0);}"},"GlassUI")if B.gSh then B.gSh:Initialize()end;for J,aZ in ipairs(B.sL)do if aZ.id~=g then B.cS[aZ.id]=P(aZ.id)table.insert(B.tG,aZ.id)end end;widgetHandler:AddAction("bars_toggle_ui",function()B.uA,B.rCHI,B.isC=not B.uA,nil,f;if B.uA then U()else B.iPA=f end end)B.isI=e end;function widget:Shutdown()widgetHandler:RemoveAction("bars_toggle_ui")for J,F in pairs(B.cS)do if F then F:Finalize()end end;B.cS={}for J,_ in pairs(B.th)do if _ then s(_)end end;B.th={}if B.iTex then s(B.iTex)B.iTex=nil end;if B.scT then s(B.scT)B.scT=nil end;if B.gSh then B.gSh:Finalize()B.gSh=nil end;if B.fTQ and B.fTQ.Delete then B.fTQ:Delete()B.fTQ=nil end;B.isI=f end;function widget:DrawWorldPreUnit()if not B.isI then return end;local bc=B.rCHI or B.aSI;if bc==g then return end;local F=Q(bc)if not F then return end;local av,aw,aR,aS=d.GetViewGeometry()if aR~=0 or aS~=0 then return end;b.DepthTest(c.LEQUAL)b.DepthMask(f)u(f)local bd,J=pcall(function()F:Activate()aD(F,bc,av,aw,e,1)if B.fTQ and B.fTQ.DrawArrays then B.fTQ:DrawArrays(v,3)else p(v,function()q(-1,-1)q(3,-1)q(-1,3)end)end;F:Deactivate()end)if not bd then B.aSI,B.rCHI=g,nil end;u(y,z)b.DepthTest(e)b.DepthMask(e)end
+function widget:GetInfo()
+  return {
+    name = "Beyond All Reason Shaders",
+    desc = "Shader Selector",
+    author = "vexalous",
+    date = "2026",
+    license = "GPL v3",
+    layer = -10001,
+    enabled = true,
+  }
+end
+
+local Min, Max, Abs, Cos, Sin, Pi =
+  math.min,
+  math.max,
+  math.abs,
+  math.cos,
+  math.sin,
+  math.pi
+local glColor, glTexCoord, glVertex, glBeginEnd =
+  gl.Color,
+  gl.TexCoord,
+  gl.Vertex,
+  gl.BeginEnd
+local glText, glLineWidth, glBlending, glDeleteTexture =
+  gl.Text,
+  gl.LineWidth,
+  gl.Blending,
+  gl.DeleteTexture
+local GL_TRIANGLES, GL_LINEAR, GL_CLAMP =
+  GL.TRIANGLES,
+  GL.LINEAR,
+  GL.CLAMP_TO_EDGE
+local GL_SRC_ALPHA, GL_ONE_MINUS = GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA
+
+local None = "none"
+
+local settings = {
+  SpatialScale = 3000,
+  CenterX = 50,
+  CenterY = -10,
+  CenterZ = 50,
+  FlipRadius = Abs(0.997114514 * 0.5),
+  UiW = 456,
+  UiH = 416,
+  CardW = 208,
+  CardImgH = 117,
+  CardTitleH = 34,
+  CardH = 151,
+  CardPadX = 20,
+  CardPadY = 20,
+  UiPaddingTop = 36,
+  UiPaddingBottom = 58,
+  PreviewW = 560,
+  PreviewH = 460,
+  PreviewImgW = 512,
+  PreviewImgH = 288,
+  PreviewPadTop = 28,
+  PreviewPadBottom = 24,
+  PreviewTitleGap = 24,
+  PreviewImgGap = 26,
+  PreviewFontSpacing = 22,
+  PreviewSidePad = 24,
+  InfoIconR = 8,
+  CloseR = 14,
+  CloseClickR = 6,
+  CardFont = 14,
+  InfoIconFont = 11,
+  PreviewTitleFont = 20,
+  PreviewLabelFont = 14,
+  PreviewEmptyFont = 16,
+  ResizeGrip = 25,
+  UiScaleMin = 0.55,
+  UiScaleMax = 2.25,
+  PreviewScaleMin = 0.6,
+  PreviewScaleMax = 2.0,
+  FontFloor = 1.3,
+  uScaleX = 1,
+  uScaleY = 1,
+  uScale = 1,
+  cardGapX = 20,
+  cardGapY = 20,
+  topPad = 36,
+  bottomPad = 58,
+  cardW = 208,
+  cardImgH = 117,
+  cardTitleH = 34,
+  cardH = 151,
+  uiW = 456,
+  uiH = 416,
+  infoIconR = 8,
+  closeR = 14,
+  prevScaleX = 1,
+  prevScaleY = 1,
+  prevScale = 1,
+  prevTopPad = 28,
+  prevBottomPad = 24,
+  prevTitleGap = 24,
+  prevImgGap = 26,
+  prevFontSpacing = 22,
+  prevSidePad = 24,
+  prevImgW = 512,
+  prevImgH = 288,
+  prevW = 560,
+  prevH = 460,
+}
+
+local state = {
+  activeSky = None,
+  rightClickPreview = nil,
+  initialized = False,
+  uiVisible = False,
+  clickInProgress = False,
+  page = 1,
+  universeSign = 1,
+  uiX = 0,
+  uiY = 0,
+  prevX = 0,
+  prevY = 0,
+  resizingPreview = False,
+  resizingUi = False,
+  dragPreview = False,
+  dragUi = False,
+  dragStartX = 0,
+  dragStartY = 0,
+  dragW = 0,
+  dragH = 0,
+  dragOffX = 0,
+  dragOffY = 0,
+  resizeStartX = 0,
+  resizeStartY = 0,
+  hoverCard = nil,
+  hoverInfo = nil,
+  hoverClose = False,
+  hoverMin = False,
+  hoverResize = False,
+  hoverResizePrev = False,
+  hoverPage = False,
+  hoverPageNext = False,
+  skyVert = nil,
+  fragSrc = {},
+  shaders = {},
+  uniformList = {},
+  usedUniforms = {},
+  list = { {
+    id = None,
+    name = "No Skybox",
+    shaderAuthor = "N/A",
+    fileAuthor = "N/A",
+    license = "N/A",
+    source = "N/A",
+  } },
+  thumbQueue = {},
+  thumbs = {},
+  shaderClock = 0,
+  screenTex = nil,
+  lastViewX = 0,
+  lastViewY = 0,
+  glassShader = nil,
+  infoTex = nil,
+  infoPanel = False,
+  infoTarget = nil,
+  fullscreenTri = nil,
+  fadeLast = None,
+  fadeOn = False,
+  fadeStart = 0,
+  fadeDuration = 0.7,
+  fadeSnap = nil,
+  fadeSnapW = 0,
+  fadeSnapH = 0,
+  fadeShader = nil,
+}
+
+local Circle = {}
+for i = 0, 16 do
+  Circle[i] = { Abs(Cos(i * Pi / 32)) ^ 0.5, Abs(Sin(i * Pi / 32)) ^ 0.5 }
+end
+
+local function PrependVersion(src)
+  if not src then return end
+  if not src:find("^%s*#version") then
+    local ver = src:match("(#version%s+%d+)")
+    if ver then
+      src = ver .. "\n" .. src:gsub("#version%s+%d+%s*\n?", "")
+    end
+  end
+  return src
+end
+
+local function ScanShaders()
+  local files = VFS.DirList("LuaUI/Shaders/")
+  if type(files) ~= "table" then return end
+  for _, path in ipairs(files) do
+    if type(path) == "string" and path:match("%.frag$") then
+      local src = VFS.LoadFile(path)
+      if src then
+        src = src .. "\n"
+        local title = src:match("//%s*Shader:%s*(.-)\r?\n")
+        if title then
+          local id = path:match("([^/%\\]+)%.frag$")
+          table.insert(state.list, {
+            id = id,
+            name = title,
+            shaderAuthor = src:match(
+              "//%s*Shader Author:%s*(.-)\r?\n"
+            ) or "Unknown",
+            fileAuthor = src:match(
+              "//%s*File Author:%s*(.-)\r?\n"
+            ) or "Unknown",
+            source = src:match("//%s*Source:%s*(.-)\r?\n") or "N/A",
+            license = src:match("//%s*License:%s*(.-)\r?\n") or "N/A",
+          })
+          state.fragSrc[id] = PrependVersion(src)
+          state.uniformList[id] =
+            "," .. (src:match("//%s*Uniforms:%s*(.-)\r?\n") or ""):gsub(
+              "[%s,;]+",
+              ","
+            ) .. ","
+        end
+      end
+    end
+  end
+  table.sort(state.list, function(a, b)
+    if a.id == None and b.id == None then
+      return false
+    elseif a.id == None then
+      return true
+    elseif b.id == None then
+      return false
+    end
+    return a.name < b.name
+  end)
+end
+
+local function CompileSkybox(id)
+  if id == None then return end
+  local frag = state.fragSrc[id]
+  if not state.skyVert or not frag then return end
+  local shader = gl.LuaShader(
+    {
+      vertex = state.skyVert,
+      fragment = frag,
+    },
+    "Skybox_" .. id
+  )
+  if shader then
+    if shader:Initialize() then
+      state.usedUniforms[id] = {}
+      return shader
+    else
+      shader:Finalize()
+    end
+  end
+end
+
+local function GetSkybox(id)
+  return id ~= None and state.shaders[id] or nil
+end
+
+local function ScaleUi(sx, sy)
+  settings.uScaleX = Max(settings.UiScaleMin, Min(settings.UiScaleMax, sx))
+  settings.uScaleY = Max(settings.UiScaleMin, Min(settings.UiScaleMax, sy))
+  settings.uScale = Min(settings.uScaleX, settings.uScaleY)
+  local fontFloor = Min(settings.uScaleY, settings.FontFloor)
+  settings.cardGapX, settings.cardGapY =
+    settings.CardPadX * settings.uScaleX,
+    settings.CardPadY * settings.uScaleY
+  settings.topPad, settings.bottomPad =
+    settings.UiPaddingTop * fontFloor,
+    settings.UiPaddingBottom * fontFloor
+  settings.cardW = settings.CardW * settings.uScaleX
+  settings.cardImgH = settings.CardImgH * settings.uScaleY
+  settings.cardTitleH = settings.CardTitleH * settings.uScaleY
+  settings.uiW = settings.UiW * settings.uScaleX
+  settings.cardH = settings.cardImgH + settings.cardTitleH
+  settings.uiH =
+    settings.topPad + settings.bottomPad + settings.cardH * 2 + settings.cardGapY
+  settings.infoIconR = settings.InfoIconR * settings.uScale
+  settings.closeR = settings.CloseR * settings.uScale
+end
+
+local function FitUi()
+  local vx, vy = Spring.GetViewGeometry()
+  if vx and vx > 0 and vy and vy > 0 then
+    ScaleUi(vx * 0.5 / settings.UiW, vy * 0.5 / settings.UiH)
+  else
+    ScaleUi(1, 1)
+  end
+  state.uiX, state.uiY = 0, 0
+end
+
+local function ScalePreview(sx, sy)
+  settings.prevScaleX =
+    Max(settings.PreviewScaleMin, Min(settings.PreviewScaleMax, sx))
+  settings.prevScaleY =
+    Max(settings.PreviewScaleMin, Min(settings.PreviewScaleMax, sy))
+  settings.prevScale = Min(settings.prevScaleX, settings.prevScaleY)
+  local fontFloor = Min(settings.prevScaleY, settings.FontFloor)
+  settings.prevTopPad, settings.prevBottomPad =
+    settings.PreviewPadTop * fontFloor,
+    settings.PreviewPadBottom * fontFloor
+  settings.prevTitleGap = settings.PreviewTitleGap * settings.prevScaleY
+  settings.prevImgGap = settings.PreviewImgGap * settings.prevScaleY
+  settings.prevFontSpacing = settings.PreviewFontSpacing * settings.prevScaleY
+  settings.prevSidePad = settings.PreviewSidePad * settings.prevScaleX
+  settings.prevImgW = settings.PreviewImgW * settings.prevScaleX
+  settings.prevImgH = settings.PreviewImgH * settings.prevScaleY
+  settings.prevW = settings.prevSidePad * 2 + settings.prevImgW
+  settings.prevH =
+    settings.prevTopPad + settings.prevTitleGap + settings.prevImgH + settings.prevImgGap + settings.prevFontSpacing * 3 + settings.PreviewLabelFont * settings.prevScale + settings.prevBottomPad
+end
+
+local function WorldToLocal(x, y, z)
+  return {
+    x = settings.CenterX + (x - (Game.mapSizeX or 16000) * 0.5) / settings.SpatialScale,
+    y = settings.CenterY + (y - 200) / settings.SpatialScale,
+    z = settings.CenterZ + (z - (Game.mapSizeZ or 16000) * 0.5) / settings.SpatialScale,
+  }
+end
+
+local function TrackSunWarp(pos)
+  if state.prevRayPos and state.prevRayPos.y * pos.y < 0 then
+    local t = state.prevRayPos.y / (state.prevRayPos.y - pos.y)
+    local x = state.prevRayPos.x + (pos.x - state.prevRayPos.x) * t
+    local z = state.prevRayPos.z + (pos.z - state.prevRayPos.z) * t
+    if x * x + z * z < settings.FlipRadius * settings.FlipRadius then
+      state.universeSign = -state.universeSign
+    end
+  end
+  state.prevRayPos = pos
+end
+
+local function RoundedRect(
+x1,
+  y1,
+  x2,
+  y2,
+  rx,
+  ry,
+  useTexCoords,
+  colorTop,
+  colorBottom
+)
+  rx = Min(rx, (x2 - x1) * 0.5, (y2 - y1) * 0.5)
+  ry = Min(ry, (x2 - x1) * 0.5, (y2 - y1) * 0.5)
+  local w, h = x2 - x1, y2 - y1
+  glBeginEnd(GL.POLYGON, function()
+    local function corner(x, y)
+      if colorTop and colorBottom then
+        local u = h > 0 and (y - y1) / h or 0
+        glColor(
+          colorTop[1] + (colorBottom[1] - colorTop[1]) * u,
+          colorTop[2] + (colorBottom[2] - colorTop[2]) * u,
+          colorTop[3] + (colorBottom[3] - colorTop[3]) * u,
+          colorTop[4] + (colorBottom[4] - colorTop[4]) * u
+        )
+      end
+      if useTexCoords then
+        glTexCoord(w > 0 and (x - x1) / w or 0, h > 0 and (y - y1) / h or 0)
+      end
+      glVertex(x, y)
+    end
+    for i = 0, 16 do
+      corner(x2 - rx + Circle[i][1] * rx, y2 - ry + Circle[i][2] * ry)
+    end
+    for i = 0, 16 do
+      corner(x1 + rx - Circle[i][2] * rx, y2 - ry + Circle[i][1] * ry)
+    end
+    for i = 0, 16 do
+      corner(x1 + ry - Circle[i][1] * ry, y1 + ry - Circle[i][2] * ry)
+    end
+    for i = 0, 16 do
+      corner(x2 - ry + Circle[i][2] * ry, y1 + ry - Circle[i][1] * ry)
+    end
+  end)
+end
+
+local function RoundRectOutline(x1, y1, x2, y2, radius, colorTop, colorBottom)
+  radius = Min(radius, (x2 - x1) * 0.5, (y2 - y1) * 0.5)
+  local h = y2 - y1
+  glBeginEnd(GL.LINE_LOOP, function()
+    local function corner(x, y)
+      if colorTop and colorBottom then
+        local u = h > 0 and (y - y1) / h or 0
+        glColor(
+          colorTop[1] + (colorBottom[1] - colorTop[1]) * u,
+          colorTop[2] + (colorBottom[2] - colorTop[2]) * u,
+          colorTop[3] + (colorBottom[3] - colorTop[3]) * u,
+          colorTop[4] + (colorBottom[4] - colorTop[4]) * u
+        )
+      end
+      glVertex(x, y)
+    end
+    for i = 0, 16 do
+      corner(
+        x2 - radius + Circle[i][1] * radius,
+        y2 - radius + Circle[i][2] * radius
+      )
+    end
+    for i = 0, 16 do
+      corner(
+        x1 + radius - Circle[i][2] * radius,
+        y2 - radius + Circle[i][1] * radius
+      )
+    end
+    for i = 0, 16 do
+      corner(
+        x1 + radius - Circle[i][1] * radius,
+        y1 + radius - Circle[i][2] * radius
+      )
+    end
+    for i = 0, 16 do
+      corner(
+        x2 - radius + Circle[i][2] * radius,
+        y1 + radius - Circle[i][1] * radius
+      )
+    end
+  end)
+end
+
+local function CircleOutline(cx, cy, r)
+  glBeginEnd(GL.LINE_LOOP, function()
+    for i = 0, 32 do
+      local a = i * Pi / 16
+      glVertex(cx + Cos(a) * r, cy + Sin(a) * r)
+    end
+  end)
+end
+
+local function Label(text, x, y, size, font, color)
+  glColor(0, 0, 0, (color[4] or 1) * 0.6)
+  glText(text, x, y - 1, size, font)
+  glColor(unpack(color))
+  glText(text, x, y, size, font)
+end
+
+local function EnsureScreenTexture(vx, vy)
+  if not state.screenTex or state.lastViewX ~= vx or state.lastViewY ~= vy then
+    if state.screenTex then
+      glDeleteTexture(state.screenTex)
+    end
+    state.screenTex = gl.CreateTexture(vx, vy, {
+      min_filter = GL_LINEAR,
+      mag_filter = GL_LINEAR,
+      wrap_s = GL_CLAMP,
+      wrap_t = GL_CLAMP,
+    })
+    state.lastViewX, state.lastViewY = vx, vy
+  end
+end
+
+local function DrawPanel(x1, y1, x2, y2, radius, alpha, tint)
+  glBlending(GL_SRC_ALPHA, GL_ONE_MINUS)
+  local r, g, b = unpack(tint or { 0.05, 0.05, 0.06 })
+  if state.glassShader and state.screenTex then
+    local vx, vy = Spring.GetViewGeometry()
+    state.glassShader:Activate()
+    state.glassShader:SetUniform("u_bounds", x1, y1, x2 - x1, y2 - y1)
+    state.glassShader:SetUniform("u_resolution", vx, vy)
+    state.glassShader:SetUniform("u_blurRadius", 3)
+    state.glassShader:SetUniform("u_colorTint", r, g, b, alpha)
+    gl.Texture(state.screenTex)
+    state.glassShader:SetUniform("u_screenTex", 0)
+    RoundedRect(x1, y1, x2, y2, radius, radius, true)
+    gl.Texture(false)
+    state.glassShader:Deactivate()
+  else
+    RoundedRect(
+      x1,
+      y1,
+      x2,
+      y2,
+      radius,
+      radius,
+      false,
+      { r, g, b, alpha },
+      { r + 0.05, g + 0.05, b + 0.05, alpha }
+    )
+  end
+  glLineWidth(1)
+  RoundRectOutline(x1, y1, x2, y2, radius, { 1, 1, 1, 0.02 }, { 1, 1, 1, 0.15 })
+end
+
+local function DrawCloseIcon(x, y, r, a)
+  glColor(1, 1, 1, a)
+  glLineWidth(1.5)
+  glBeginEnd(GL.LINES, function()
+    glVertex(x - r, y - r)
+    glVertex(x + r, y + r)
+    glVertex(x - r, y + r)
+    glVertex(x + r, y - r)
+  end)
+  glLineWidth(1)
+end
+
+local function DrawGripIcon(x, y, active, scale)
+  scale = scale or 1
+  glColor(1, 1, 1, active and 0.8 or 0.3)
+  glBeginEnd(GL.LINES, function()
+    glVertex(x - 4 * scale, y + 14 * scale)
+    glVertex(x - 14 * scale, y + 4 * scale)
+    glVertex(x - 4 * scale, y + 10 * scale)
+    glVertex(x - 10 * scale, y + 4 * scale)
+    glVertex(x - 4 * scale, y + 6 * scale)
+    glVertex(x - 6 * scale, y + 4 * scale)
+  end)
+end
+
+local function UiBounds()
+  local vx, vy = Spring.GetViewGeometry()
+  return (vx - settings.uiW) * 0.5 + state.uiX, (vy - settings.uiH) * 0.5 + state.uiY, vx, vy
+end
+
+local function PreviewPos(uiX, uiY)
+  return uiX + (settings.uiW - settings.prevW) * 0.5 + state.prevX, uiY + (settings.uiH - settings.prevH) * 0.5 + state.prevY
+end
+
+local function CardRect(uiX, uiY, slot)
+  local row, col = math.floor((slot - 1) / 2), (slot - 1) % 2
+  local startX =
+    uiX + (settings.uiW - (2 * settings.cardW + settings.cardGapX)) * 0.5
+  local x1 = startX + col * (settings.cardW + settings.cardGapX)
+  local y2 =
+    uiY + settings.uiH - settings.topPad - row * (settings.cardH + settings.cardGapY)
+  return x1, y2 - settings.cardH, x1 + settings.cardW, y2
+end
+
+local function InRect(x, y, x1, y1, w, h)
+  return x >= x1 and x <= x1 + w and y >= y1 and y <= y1 + h
+end
+
+local function SetShaderUniforms(shader, id, resW, resH, live, brightness)
+  local fov = Spring.GetCameraFOV()
+  local tanHalfFov = fov and math.tan(math.rad(fov * 0.5)) or 0.4142
+  local cam = live and Spring.GetCameraVectors() or {
+    forward = { 0, 0, -1 },
+    right = { 1, 0, 0 },
+    up = { 0, 1, 0 },
+  }
+  local pos = live and { Spring.GetCameraPosition() } or { 0, 0, 0 }
+  local rel = live and WorldToLocal(pos[1], pos[2], pos[3]) or {
+    x = settings.CenterX,
+    y = settings.CenterY,
+    z = settings.CenterZ,
+  }
+  if live then
+    TrackSunWarp(rel)
+  end
+  local uniforms = {
+    u_resolution = { resW, resH },
+    u_time = { live and os.clock() - state.shaderClock or 30 },
+    brightness = { brightness or 1 },
+    u_camForward = cam.forward,
+    u_camRight = cam.right,
+    u_camUp = cam.up,
+    u_camRightScaled = {
+      cam.right[1] * tanHalfFov,
+      cam.right[2] * tanHalfFov,
+      cam.right[3] * tanHalfFov,
+    },
+    u_camUpScaled = {
+      cam.up[1] * tanHalfFov,
+      cam.up[2] * tanHalfFov,
+      cam.up[3] * tanHalfFov,
+    },
+    u_tanHalfFov = { tanHalfFov },
+    u_camPos = pos,
+    u_camPos_Rs = { rel.x, rel.y, rel.z },
+    u_universeSign = { live and state.universeSign or 1 },
+  }
+  for name, value in pairs(uniforms) do
+    if state.usedUniforms[id][name] == nil then
+      state.usedUniforms[id][name] =
+        state.uniformList[id]:find("," .. name .. ",", 1, true) ~= nil
+    end
+    if state.usedUniforms[id][name] then
+      shader:SetUniform(name, unpack(value))
+    end
+  end
+end
+
+local function RenderSkyboxToTexture(id, tex, live, w, h)
+  local shader = GetSkybox(id)
+  if not shader then return end
+  gl.RenderToTexture(tex, function()
+    gl.Clear(GL.COLOR_BUFFER_BIT, GL.DEPTH_BUFFER_BIT)
+    shader:Activate()
+    SetShaderUniforms(shader, id, w, h, live, 1)
+    if state.fullscreenTri and state.fullscreenTri.DrawArrays then
+      state.fullscreenTri:DrawArrays(GL_TRIANGLES, 3)
+    else
+      glBeginEnd(GL_TRIANGLES, function()
+        glVertex(-1, -1)
+        glVertex(3, -1)
+        glVertex(-1, 3)
+      end)
+    end
+    shader:Deactivate()
+  end)
+end
+
+local function MakeThumbnail(id)
+  local tex = gl.CreateTexture(256, 144, {
+    fbo = true,
+    min_filter = GL_LINEAR,
+    mag_filter = GL_LINEAR,
+    wrap_s = GL_CLAMP,
+    wrap_t = GL_CLAMP,
+  })
+  if tex then
+    RenderSkyboxToTexture(id, tex, false, 256, 144)
+  end
+  return tex
+end
+
+function widget:KeyPress(key, mods, isRepeat)
+  if key == 112 and mods.ctrl and mods.shift then
+    state.uiVisible, state.rightClickPreview, state.clickInProgress =
+      not state.uiVisible,
+      nil,
+      false
+    if state.uiVisible then
+      FitUi()
+    else
+      state.infoPanel = false
+    end
+    return true
+  end
+  if not state.uiVisible then
+    return false
+  end
+  if key == 27 then
+    if state.infoPanel then
+      state.infoPanel, state.infoTarget = false, nil
+    else
+      state.uiVisible, state.rightClickPreview = false, nil
+    end
+    return true
+  end
+  return false
+end
+
+function widget:IsAbove(x, y)
+  state.hoverCard,
+    state.hoverInfo,
+    state.hoverClose,
+    state.hoverMin,
+    state.hoverResize,
+    state.hoverResizePrev,
+    state.hoverPage,
+    state.hoverPageNext
+  = nil, nil, false, false, false, false, false, false
+  if not state.uiVisible then
+    return false
+  end
+  local uiX, uiY = UiBounds()
+  if state.infoPanel then
+    local px, py = PreviewPos(uiX, uiY)
+    if InRect(x, y, px, py, settings.prevW, settings.prevH) then
+      if x >= px + settings.prevW - settings.ResizeGrip * settings.prevScale and y <= py + settings.ResizeGrip * settings.prevScale then
+        state.hoverResizePrev = true
+        return true
+      end
+      local r = settings.CloseR * settings.prevScale
+      if x >= px + settings.prevW - 20 - r and x <= px + settings.prevW - 20 + r and y >= py + settings.prevH - 20 - r and y <= py + settings.prevH - 20 + r then
+        state.hoverClose = true
+      end
+      return true
+    end
+    return true
+  end
+  if InRect(x, y, uiX, uiY, settings.uiW, settings.uiH) then
+    if x >= uiX + settings.uiW - settings.ResizeGrip * settings.uScale and y <= uiY + settings.ResizeGrip * settings.uScale then
+      state.hoverResize = true
+      return true
+    end
+    local cx, cy = uiX + settings.uiW - 20, uiY + settings.uiH - 20
+    if x >= cx - settings.closeR and x <= cx + settings.closeR and y >= cy - settings.closeR and y <= cy + settings.closeR then
+      state.hoverMin = true
+      return true
+    end
+    local pages = math.ceil(#state.list / 4)
+    if pages > 1 then
+      local px, py = uiX + settings.uiW * 0.5, uiY + settings.bottomPad * 0.5
+      if x >= px - 75 * settings.uScale and x <= px - 45 * settings.uScale and y >= py - 15 * settings.uScale and y <= py + 15 * settings.uScale then
+        state.hoverPage = true
+        return true
+      end
+      if x >= px + 45 * settings.uScale and x <= px + 75 * settings.uScale and y >= py - 15 * settings.uScale and y <= py + 15 * settings.uScale then
+        state.hoverPageNext = true
+        return true
+      end
+    end
+    local first = (state.page - 1) * 4 + 1
+    for i = first, Min(#state.list, first + 3) do
+      local entry = state.list[i]
+      local slot = i - first + 1
+      local x1, y1, x2, y2 = CardRect(uiX, uiY, slot)
+      if InRect(x, y, x1, y1, settings.cardW, settings.cardH) then
+        state.hoverCard = entry.id
+        local ix, iy =
+          x2 - 16 * settings.uScaleX,
+          y1 + settings.cardTitleH * 0.5
+        if x >= ix - settings.infoIconR and x <= ix + settings.infoIconR and y >= iy - settings.infoIconR and y <= iy + settings.infoIconR then
+          state.hoverInfo = entry.id
+        end
+        break
+      end
+    end
+    return true
+  end
+  return false
+end
+
+function widget:MousePress(x, y, button)
+  if not state.uiVisible then
+    return false
+  end
+  local uiX, uiY = UiBounds()
+  if state.infoPanel then
+    local px, py = PreviewPos(uiX, uiY)
+    if button == 1 then
+      if InRect(x, y, px, py, settings.prevW, settings.prevH) then
+        if state.hoverResizePrev then
+          state.resizingPreview, state.dragStartX, state.dragStartY = true, x, y
+          state.resizeStartX, state.resizeStartY =
+            settings.prevScaleX,
+            settings.prevScaleY
+          state.dragW, state.dragH, state.dragOffX, state.dragOffY =
+            settings.prevW,
+            settings.prevH,
+            state.prevX,
+            state.prevY
+          return true
+        end
+        local r = settings.CloseR * settings.prevScale
+        if x >= px + settings.prevW - 20 - r and x <= px + settings.prevW - 20 + r and y >= py + settings.prevH - 20 - r and y <= py + settings.prevH - 20 + r then
+          state.infoPanel, state.infoTarget = false, nil
+          return true
+        end
+        state.dragPreview,
+          state.dragStartX,
+          state.dragStartY,
+          state.dragOffX,
+          state.dragOffY
+        = true, x, y, state.prevX, state.prevY
+        return true
+      end
+      return true
+    end
+    state.clickInProgress = true
+    return true
+  end
+  if InRect(x, y, uiX, uiY, settings.uiW, settings.uiH) then
+    state.clickInProgress = true
+    if button == 1 and state.hoverResize then
+      state.resizingUi, state.dragStartX, state.dragStartY = true, x, y
+      state.resizeStartX, state.resizeStartY =
+        settings.uScaleX,
+        settings.uScaleY
+      state.dragW, state.dragH, state.dragOffX, state.dragOffY =
+        settings.uiW,
+        settings.uiH,
+        state.uiX,
+        state.uiY
+      return true
+    end
+    if button == 1 and state.hoverMin then
+      state.uiVisible, state.rightClickPreview = false, nil
+      return true
+    end
+    if button == 1 and state.hoverPage then
+      if state.page > 1 then
+        state.page = state.page - 1
+      end
+      return true
+    end
+    if button == 1 and state.hoverPageNext then
+      if state.page < math.ceil(#state.list / 4) then
+        state.page = state.page + 1
+      end
+      return true
+    end
+    if button == 1 and state.hoverInfo then
+      state.infoTarget, state.infoPanel, state.prevX, state.prevY =
+        state.hoverInfo,
+        true,
+        0,
+        0
+      ScalePreview(1, 1)
+      return true
+    end
+    if state.hoverCard then
+      if button == 1 then
+        state.activeSky = state.hoverCard
+      elseif button == 3 then
+        state.rightClickPreview = state.hoverCard
+      end
+    end
+    if button == 1 then
+      state.dragUi,
+        state.dragStartX,
+        state.dragStartY,
+        state.dragOffX,
+        state.dragOffY
+      = true, x, y, state.uiX, state.uiY
+    end
+    return true
+  end
+  return false
+end
+
+function widget:MouseRelease(x, y, button)
+  if state.resizingPreview then
+    state.resizingPreview = false
+  end
+  if state.resizingUi then
+    state.resizingUi = false
+  end
+  if state.dragPreview then
+    state.dragPreview = false
+  end
+  if state.dragUi then
+    state.dragUi = false
+  end
+  if state.clickInProgress then
+    state.clickInProgress = false
+    if button == 3 and state.rightClickPreview then
+      state.rightClickPreview = nil
+    end
+    return true
+  end
+  return false
+end
+
+function widget:MouseMove(x, y, dx, dy, button)
+  if state.resizingPreview then
+    ScalePreview(
+      state.resizeStartX + (x - state.dragStartX) / settings.PreviewW,
+      state.resizeStartY + (state.dragStartY - y) / settings.PreviewH
+    )
+    state.prevX, state.prevY =
+      state.dragOffX + (settings.prevW - state.dragW) * 0.5,
+      state.dragOffY - (settings.prevH - state.dragH) * 0.5
+    return true
+  end
+  if state.resizingUi then
+    ScaleUi(
+      state.resizeStartX + (x - state.dragStartX) / settings.UiW,
+      state.resizeStartY + (state.dragStartY - y) / settings.UiH
+    )
+    state.uiX, state.uiY =
+      state.dragOffX + (settings.uiW - state.dragW) * 0.5,
+      state.dragOffY - (settings.uiH - state.dragH) * 0.5
+    return true
+  end
+  if state.dragPreview then
+    state.prevX, state.prevY =
+      state.dragOffX + x - state.dragStartX,
+      state.dragOffY + y - state.dragStartY
+    return true
+  end
+  if state.dragUi then
+    state.uiX, state.uiY =
+      state.dragOffX + x - state.dragStartX,
+      state.dragOffY + y - state.dragStartY
+    return true
+  end
+  return state.clickInProgress
+end
+
+function widget:MouseWheel()
+  if not state.uiVisible then
+    return false
+  end
+  local uiX, uiY = UiBounds()
+  local x, y = Spring.GetMouseState()
+  return InRect(x, y, uiX, uiY, settings.uiW, settings.uiH)
+end
+
+function widget:DrawScreen()
+  if not state.uiVisible or state.rightClickPreview then return end
+  local uiX, uiY, vx, vy = UiBounds()
+  EnsureScreenTexture(vx, vy)
+  if state.screenTex then
+    pcall(gl.CopyToTexture, state.screenTex, 0, 0, 0, 0, vx, vy)
+  end
+  if #state.thumbQueue > 0 then
+    local id = table.remove(state.thumbQueue, 1)
+    state.thumbs[id] = MakeThumbnail(id)
+  end
+  if state.hoverCard and state.hoverCard ~= None and state.thumbs[state.hoverCard] then
+    RenderSkyboxToTexture(
+      state.hoverCard,
+      state.thumbs[state.hoverCard],
+      true,
+      256,
+      144
+    )
+  end
+  DrawPanel(
+    uiX,
+    uiY,
+    uiX + settings.uiW,
+    uiY + settings.uiH,
+    16 * settings.uScale,
+    0.75,
+    { 0.02, 0.02, 0.02 }
+  )
+  DrawCloseIcon(
+    uiX + settings.uiW - 20,
+    uiY + settings.uiH - 20,
+    settings.CloseClickR * settings.uScale,
+    state.hoverMin and 1 or 0.3
+  )
+  DrawGripIcon(
+    uiX + settings.uiW,
+    uiY,
+    state.hoverResize or state.resizingUi,
+    settings.uScale
+  )
+
+  local first = (state.page - 1) * 4 + 1
+  for i = first, Min(#state.list, first + 3) do
+    local entry = state.list[i]
+    local slot = i - first + 1
+    local x1, y1, x2, y2 = CardRect(uiX, uiY, slot)
+    local hovering, selected =
+      state.hoverCard == entry.id,
+      state.activeSky == entry.id
+    local titleY = y1 + settings.cardTitleH
+    RoundedRect(
+      x1,
+      y1,
+      x2,
+      titleY,
+      0,
+      10 * settings.uScale,
+      false,
+      { 0.05, 0.05, 0.05, 0.6 },
+      { 0.12, 0.12, 0.12, 0.6 }
+    )
+    if entry.id == None then
+      glColor(0.01, 0.01, 0.01, 0.8)
+      RoundedRect(x1, titleY, x2, y2, 10 * settings.uScale, 0)
+    elseif state.thumbs[entry.id] then
+      glColor(1, 1, 1, 1)
+      gl.Texture(state.thumbs[entry.id])
+      RoundedRect(x1, titleY, x2, y2, 10 * settings.uScale, 0, true)
+      gl.Texture(false)
+    else
+      glColor(0.05, 0.05, 0.05, 0.8)
+      RoundedRect(x1, titleY, x2, y2, 10 * settings.uScale, 0)
+    end
+    if hovering and not selected then
+      glColor(1, 1, 1, 0.05)
+      RoundedRect(x1, y1, x2, y2, 10 * settings.uScale, 10 * settings.uScale)
+    end
+    if selected then
+      glLineWidth(1.5)
+      RoundRectOutline(
+        x1,
+        y1,
+        x2,
+        y2,
+        10 * settings.uScale,
+        { 0.1, 0.4, 0.8, 0.8 },
+        { 0.5, 0.8, 1, 1 }
+      )
+      glLineWidth(1)
+    else
+      glLineWidth(1)
+      RoundRectOutline(
+        x1,
+        y1,
+        x2,
+        y2,
+        10 * settings.uScale,
+        { 1, 1, 1, 0.02 },
+        { 1, 1, 1, 0.15 }
+      )
+    end
+    Label(
+      entry.name,
+      x1 + settings.cardW * 0.5,
+      y1 + settings.cardTitleH * 0.5,
+      settings.CardFont * settings.uScale,
+      "cv",
+      { 1, 1, 1, selected and 1 or 0.7 }
+    )
+    local ix, iy = x2 - 16 * settings.uScaleX, y1 + settings.cardTitleH * 0.5
+    local infoHover = state.hoverInfo == entry.id
+    glColor(1, 1, 1, infoHover and 0.4 or 0.1)
+    CircleOutline(ix, iy, settings.infoIconR)
+    Label("i", ix, iy, settings.InfoIconFont * settings.uScale, "cv", {
+      1,
+      1,
+      1,
+      infoHover and 1 or 0.4,
+    })
+  end
+
+  local pages = math.ceil(#state.list / 4)
+  if pages > 1 then
+    local py, px = uiY + settings.bottomPad * 0.5, uiX + settings.uiW * 0.5
+    Label(
+      "Page " .. state.page .. " / " .. pages,
+      px,
+      py,
+      14 * settings.uScale,
+      "cv",
+      { 1, 1, 1, 0.8 }
+    )
+    Label("<", px - 60 * settings.uScale, py, 16 * settings.uScale, "cv", {
+      1,
+      1,
+      1,
+      state.hoverPage and 1 or 0.5,
+    })
+    Label(">", px + 60 * settings.uScale, py, 16 * settings.uScale, "cv", {
+      1,
+      1,
+      1,
+      state.hoverPageNext and 1 or 0.5,
+    })
+  end
+
+  if state.infoPanel then
+    local px, py = PreviewPos(uiX, uiY)
+    DrawPanel(
+      px,
+      py,
+      px + settings.prevW,
+      py + settings.prevH,
+      16 * settings.prevScale,
+      0.75,
+      { 0.01, 0.01, 0.01 }
+    )
+    DrawCloseIcon(
+      px + settings.prevW - 20,
+      py + settings.prevH - 20,
+      settings.CloseClickR * settings.prevScale,
+      state.hoverClose and 1 or 0.3
+    )
+    DrawGripIcon(
+      px + settings.prevW,
+      py,
+      state.hoverResizePrev or state.resizingPreview,
+      settings.prevScale
+    )
+    if state.infoTarget then
+      local entry
+      for _, e in ipairs(state.list) do
+        if e.id == state.infoTarget then
+          entry = e
+          break
+        end
+      end
+      if entry then
+        local titleY = py + settings.prevH - settings.PreviewPadTop
+        Label(
+          entry.name,
+          px + settings.prevW * 0.5,
+          titleY,
+          settings.PreviewTitleFont * settings.prevScale,
+          "cv",
+          { 1, 1, 1, 1 }
+        )
+        if entry.id ~= None then
+          local imgX, imgY =
+            px + (settings.prevW - settings.prevImgW) * 0.5,
+            titleY - settings.PreviewTitleGap - settings.prevImgH
+          RenderSkyboxToTexture(state.infoTarget, state.infoTex, true, 512, 288)
+          glColor(1, 1, 1, 1)
+          gl.Texture(state.infoTex)
+          RoundedRect(
+            imgX,
+            imgY,
+            imgX + settings.prevImgW,
+            imgY + settings.prevImgH,
+            10 * settings.prevScale,
+            10 * settings.prevScale,
+            true
+          )
+          gl.Texture(false)
+          glLineWidth(1)
+          RoundRectOutline(
+            imgX,
+            imgY,
+            imgX + settings.prevImgW,
+            imgY + settings.prevImgH,
+            10 * settings.prevScale,
+            { 1, 1, 1, 0.02 },
+            { 1, 1, 1, 0.2 }
+          )
+          local labelY, spacing =
+            imgY - settings.PreviewImgGap,
+            settings.PreviewFontSpacing * settings.prevScale
+          local function InfoLine(text, value, y)
+            Label(
+              text .. " " .. value,
+              px + settings.prevW * 0.5,
+              y,
+              settings.PreviewLabelFont * settings.prevScale,
+              "cv",
+              { 0.85, 0.85, 0.85, 1 }
+            )
+          end
+          InfoLine("Shader Author:", entry.shaderAuthor, labelY)
+          InfoLine("File Author:", entry.fileAuthor, labelY - spacing)
+          InfoLine("License:", entry.license, labelY - spacing * 2)
+          InfoLine("Source:", entry.source, labelY - spacing * 3)
+        else
+          Label(
+            "No additional information available.",
+            px + settings.prevW * 0.5,
+            py + settings.prevH * 0.5,
+            settings.PreviewEmptyFont * settings.prevScale,
+            "cv",
+            { 1, 1, 1, 0.6 }
+          )
+        end
+      end
+    end
+  end
+end
+
+function widget:GetConfigData()
+  return { activeSkyboxId = state.activeSky }
+end
+
+function widget:SetConfigData(data)
+  state.activeSky = data and data.activeSkyboxId or None
+  state.fadeLast, state.fadeOn = state.activeSky, false
+  ScaleUi(1, 1)
+  ScalePreview(1, 1)
+end
+
+function widget:Initialize()
+  state.shaderClock, state.fullscreenTri, state.infoTex =
+    os.clock(),
+    gl.GetVAO and gl.GetVAO(),
+    gl.CreateTexture(512, 288, {
+      fbo = true,
+      min_filter = GL_LINEAR,
+      mag_filter = GL_LINEAR,
+      wrap_s = GL_CLAMP,
+      wrap_t = GL_CLAMP,
+    })
+  local skyVert = VFS.LoadFile("LuaUI/Shaders/Skybox430.vert")
+  if skyVert then
+    state.skyVert = PrependVersion(skyVert)
+  end
+  ScanShaders()
+
+  state.glassShader = gl.LuaShader(
+    {
+      vertex = "#version 150 compatibility\nout vec2 v_uv;void main(){v_uv=gl_MultiTexCoord0.xy;gl_Position=gl_ModelViewProjectionMatrix*gl_Vertex;}",
+      fragment = "#version 150 compatibility\nuniform sampler2D u_screenTex;uniform vec4 u_bounds,u_colorTint;uniform vec2 u_resolution;uniform float u_blurRadius;in vec2 v_uv;out vec4 fragColor;float rand(vec2 co){return fract(sin(dot(co.xy,vec2(12.9898,78.233)))*43758.5453);}void main(){vec2 sP=vec2(u_bounds.x+v_uv.x*u_bounds.z,u_bounds.y+v_uv.y*u_bounds.w);vec2 sU=sP/u_resolution;vec4 C=vec4(0.0);float t=0.0;vec2 tx=1.0/u_resolution;for(float x=-3.0;x<=3.0;x+=1.0){for(float y=-3.0;y<=3.0;y+=1.0){float w=1.0-(length(vec2(x,y))/4.24);if(w>0.0){C+=texture(u_screenTex,sU+vec2(x,y)*tx*u_blurRadius)*w;t+=w;}}}C/=t;float n=(rand(sU)-0.5)*0.05;float s=smoothstep(0.0,2.0,v_uv.x+v_uv.y);vec3 fT=mix(u_colorTint.rgb,vec3(1.0),s*0.05);fragColor=vec4(mix(C.rgb,fT,u_colorTint.a)+vec3(n),1.0);}",
+    },
+    "GlassUI"
+  )
+  if state.glassShader then
+    state.glassShader:Initialize()
+  end
+
+  if state.skyVert then
+    local fade = gl.LuaShader(
+      {
+        vertex = state.skyVert,
+        fragment = "#version 430\nuniform sampler2D u_src;uniform float u_a;in vec2 uv;out vec4 fragColor;void main(){fragColor=vec4(texture(u_src,uv).rgb,u_a);}",
+      },
+      "SkyboxFade"
+    )
+    if fade then
+      if fade:Initialize() then
+        state.fadeShader = fade
+      else
+        fade:Finalize()
+      end
+    end
+  end
+
+  for _, entry in ipairs(state.list) do
+    if entry.id ~= None then
+      state.shaders[entry.id] = CompileSkybox(entry.id)
+      table.insert(state.thumbQueue, entry.id)
+    end
+  end
+
+  widgetHandler:AddAction("bars_toggle_ui", function()
+    state.uiVisible, state.rightClickPreview, state.clickInProgress =
+      not state.uiVisible,
+      nil,
+      false
+    if state.uiVisible then
+      FitUi()
+    else
+      state.infoPanel = false
+    end
+  end)
+  state.initialized = true
+end
+
+function widget:Shutdown()
+  widgetHandler:RemoveAction("bars_toggle_ui")
+  for _, shader in pairs(state.shaders) do
+    if shader then
+      shader:Finalize()
+    end
+  end
+  state.shaders = {}
+  for _, tex in pairs(state.thumbs) do
+    if tex then
+      glDeleteTexture(tex)
+    end
+  end
+  state.thumbs = {}
+  if state.infoTex then
+    glDeleteTexture(state.infoTex)
+    state.infoTex = nil
+  end
+  if state.screenTex then
+    glDeleteTexture(state.screenTex)
+    state.screenTex = nil
+  end
+  if state.glassShader then
+    state.glassShader:Finalize()
+    state.glassShader = nil
+  end
+  if state.fadeShader then
+    state.fadeShader:Finalize()
+    state.fadeShader = nil
+  end
+  if state.fadeSnap then
+    glDeleteTexture(state.fadeSnap)
+    state.fadeSnap = nil
+  end
+  state.fadeSnapW, state.fadeSnapH = 0, 0
+  if state.fullscreenTri and state.fullscreenTri.Delete then
+    state.fullscreenTri:Delete()
+    state.fullscreenTri = nil
+  end
+  state.initialized = false
+end
+
+local function FadeFactor(now)
+  local t = (now - state.fadeStart) / state.fadeDuration
+  if t < 0 then
+    t = 0
+  elseif t > 1 then
+    t = 1
+  end
+  return t * t * (3 - 2 * t)
+end
+
+local function DrawSkybox(shader, id, width, height)
+  local ok = pcall(function()
+    shader:Activate()
+    SetShaderUniforms(shader, id, width, height, true, 1)
+    if state.fullscreenTri and state.fullscreenTri.DrawArrays then
+      state.fullscreenTri:DrawArrays(GL_TRIANGLES, 3)
+    else
+      glBeginEnd(GL_TRIANGLES, function()
+        glVertex(-1, -1)
+        glVertex(3, -1)
+        glVertex(-1, 3)
+      end)
+    end
+    shader:Deactivate()
+  end)
+  if not ok then
+    pcall(function()
+      shader:Deactivate()
+    end)
+  end
+  return ok
+end
+
+local function EnsureFadeTexture(w, h)
+  if state.fadeSnap and state.fadeSnapW == w and state.fadeSnapH == h then
+    return true
+  end
+  if state.fadeSnap then
+    glDeleteTexture(state.fadeSnap)
+    state.fadeSnap = nil
+  end
+  state.fadeSnap = gl.CreateTexture(w, h, {
+    min_filter = GL_LINEAR,
+    mag_filter = GL_LINEAR,
+    wrap_s = GL_CLAMP,
+    wrap_t = GL_CLAMP,
+  })
+  state.fadeSnapW, state.fadeSnapH = w, h
+  return state.fadeSnap ~= nil
+end
+
+local function CompositeFade(texture, alpha)
+  if not state.fadeShader or not texture then return end
+  glBlending(GL_SRC_ALPHA, GL_ONE_MINUS)
+  gl.Texture(texture)
+  state.fadeShader:Activate()
+  state.fadeShader:SetUniform("u_src", 0)
+  state.fadeShader:SetUniform("u_a", alpha)
+  if state.fullscreenTri and state.fullscreenTri.DrawArrays then
+    state.fullscreenTri:DrawArrays(GL_TRIANGLES, 3)
+  else
+    glBeginEnd(GL_TRIANGLES, function()
+      glVertex(-1, -1)
+      glVertex(3, -1)
+      glVertex(-1, 3)
+    end)
+  end
+  state.fadeShader:Deactivate()
+  gl.Texture(false)
+end
+
+function widget:DrawWorldPreUnit()
+  if not state.initialized then return end
+  local target = state.rightClickPreview or state.activeSky
+  local vx, vy, viewPosX, viewPosY = Spring.GetViewGeometry()
+  if viewPosX ~= 0 or viewPosY ~= 0 then return end
+  if not vx or vx < 1 or not vy or vy < 1 then return end
+  local now = os.clock()
+
+  if target ~= state.fadeLast then
+    gl.DepthTest(GL.LEQUAL)
+    gl.DepthMask(false)
+    glBlending(false)
+    if state.fadeOn then
+      local prev = GetSkybox(state.fadeLast)
+      if prev then
+        DrawSkybox(prev, state.fadeLast, vx, vy)
+      end
+      CompositeFade(state.fadeSnap, 1 - FadeFactor(now))
+    elseif state.fadeLast ~= None then
+      local prev = GetSkybox(state.fadeLast)
+      if prev then
+        DrawSkybox(prev, state.fadeLast, vx, vy)
+      end
+    end
+    local ok = EnsureFadeTexture(vx, vy)
+    if ok then
+      ok = pcall(gl.CopyToTexture, state.fadeSnap, 0, 0, 0, 0, vx, vy)
+    end
+    if ok then
+      state.fadeStart = now
+      state.fadeOn = true
+    else
+      state.fadeOn = false
+    end
+    state.fadeLast = target
+    glBlending(GL_SRC_ALPHA, GL_ONE_MINUS)
+    gl.DepthTest(true)
+    gl.DepthMask(true)
+  end
+
+  if state.fadeOn and now - state.fadeStart >= state.fadeDuration then
+    state.fadeOn = false
+  end
+  if state.fadeOn and (not state.fadeSnap or state.fadeSnapW ~= vx or state.fadeSnapH ~= vy) then
+    state.fadeOn = false
+  end
+  if target == None and not state.fadeOn then return end
+  local shader = GetSkybox(target)
+  if not shader and not state.fadeOn then return end
+
+  gl.DepthTest(GL.LEQUAL)
+  gl.DepthMask(false)
+  glBlending(false)
+  if shader then
+    local ok = DrawSkybox(shader, target, vx, vy)
+    if not ok then
+      state.activeSky, state.rightClickPreview, state.fadeOn, state.fadeLast =
+        None,
+        nil,
+        false,
+        None
+      glBlending(GL_SRC_ALPHA, GL_ONE_MINUS)
+      gl.DepthTest(true)
+      gl.DepthMask(true)
+      return
+    end
+  end
+  if state.fadeOn and state.fadeSnap then
+    CompositeFade(state.fadeSnap, 1 - FadeFactor(now))
+  end
+  glBlending(GL_SRC_ALPHA, GL_ONE_MINUS)
+  gl.DepthTest(true)
+  gl.DepthMask(true)
+end

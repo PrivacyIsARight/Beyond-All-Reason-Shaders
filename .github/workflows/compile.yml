@@ -1,1 +1,39 @@
-{'on': [push, pull_request], permissions: {contents: read}, jobs: {compile: {strategy: {matrix: {os: [ubuntu-latest, macos-latest]}}, runs-on: '${{ matrix.os }}', steps: [{uses: actions/checkout@v7}, {if: runner.os == 'Linux', run: sudo apt-get update && sudo apt-get install -y glslang-tools}, {if: runner.os == 'macOS', run: brew install glslang}, {run: set -e; for f in LuaUI/Shaders/*.vert LuaUI/Shaders/*.frag; do glslangValidator --target-env opengl --aml --amb "$f"; done}]}}}
+name: compile
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: sudo apt-get update && sudo apt-get install -y glslang-tools
+      - run: |
+          set -e
+          for f in LuaUI/Shaders/*.vert LuaUI/Shaders/*.frag; do
+            glslangValidator --target-env opengl --aml --amb "$f"
+          done
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Prettier check
+        run: npx prettier --check LuaUI/Widgets/gui_shader_selector.lua
+      - name: Lua syntax check
+        run: |
+          python3 -m pip install --user luaparser
+          python3 - <<'EOF'
+          from luaparser import ast
+          src = open("LuaUI/Widgets/gui_shader_selector.lua", encoding="utf8").read()
+          ast.parse(src)
+          print("SYNTAX OK")
+          EOF
